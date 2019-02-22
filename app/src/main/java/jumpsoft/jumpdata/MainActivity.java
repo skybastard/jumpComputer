@@ -70,7 +70,9 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         manager = (SensorManager) getApplicationContext().getSystemService(Context.SENSOR_SERVICE);
-        pressureSensor = manager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+        if (manager != null) {
+            pressureSensor = manager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+        }
         PressureListener listener = new PressureListener();
         manager.registerListener(listener, pressureSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
@@ -150,13 +152,16 @@ public class MainActivity extends AppCompatActivity
         float deltaHeight;
         float altitude;
         float maxSpeed = 0;
-        float exitAlti = 0;
-        float dplyAlti;
+        float exitAlti = 0; // first logged when hi speed
+        float dplyAlti; // last logged when speed low at altitude
+        float avgSpeed;
         float speed;
         long time;
-        long falltime;
+        long falltime; // last - first logged
         int medianCounter = 0;
         boolean groundPressureSet = false;
+        boolean freefalling = false;
+        boolean dataWritten = false;
 
         ArrayList<Float> medianList = new ArrayList<>();
         ArrayList<Long> speedTimeList = new ArrayList<>();
@@ -169,18 +174,20 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onSensorChanged(SensorEvent sensorEvent) {
 
-            if (groundPressureSet == false) {
+            if (!groundPressureSet) {
                 groundPressure = Math.round(sensorEvent.values[0]);
                 groundPressureSet = true;
             }
 
             rawPressureValue = sensorEvent.values[0];
+            /*if (groundPressure < Math.round(rawPressureValue))
+                groundPressureSet = false;*/
             medianList.add(rawPressureValue);
 
             medianCounter++;
-            if (medianCounter == 5) {
+            if (medianCounter == 3) {
                 Collections.sort(medianList);
-                pressureValue = medianList.get(2);
+                pressureValue = medianList.get(1);
                 altitude = manager.getAltitude(groundPressure, pressureValue);
 
                 //Speed calculation
@@ -192,18 +199,57 @@ public class MainActivity extends AppCompatActivity
                             - speedTimeList.get(speedTimeList.size() - 2))) / 1000000;
                     deltaHeight = (speedAltitudeList.get(speedAltitudeList.size() - 2)
                             - speedAltitudeList.get(speedAltitudeList.size() - 1));
-                    speed = Math.abs((deltaHeight / deltaTime) * 1000);
+                    speed = (deltaHeight / deltaTime) * 1000;
+
+                    if (maxSpeed < speed){
+                        maxSpeed = speed;
+                    }
+
+                    if (speed > 10 && altitude > 50){
+                        logData(time, altitude);
+                        freefalling = true;
+                    }else {
+                        freefalling = false;
+                    }
+                    if (logTime.size() > 2 && !freefalling){ // logtime array is empty when !freefalling, runs only once
+                        updateViews(logTime, logAlti);
+                    }
                     speedTimeList.remove(0);
                     speedAltitudeList.remove(0);
                 }
                 medianCounter = 0;
                 medianList.clear();
-            }
+            }//median calculator
+
             altiView.setText(String.valueOf( df.format(altitude) + " m"));
             spdView.setText(String.valueOf( df.format(speed) + " m/s"));
+
+
             Log.d("pressure", String.valueOf(sensorEvent.values[0]) + " "+ deltaTime +" "+deltaHeight);
+        } // onsensorchanged
+
+        ArrayList<Long> logTime = new ArrayList<>();
+        ArrayList<Float> logAlti = new ArrayList<>();
+        void logData(long time, float altitude){
+            logTime.add(time);
+            logAlti.add(altitude);
         }
 
+        void updateViews(ArrayList<Long> logTime, ArrayList<Float> logAlti){
+            exitAlti = logAlti.get(0);
+            dplyAlti =  logAlti.get(logAlti.size() - 1);
+            falltime = (logTime.get(logTime.size() - 1) - logTime.get(0)) / 1000000000;
+            avgSpeed = (exitAlti-dplyAlti) / falltime;
+
+            vmaxView.setText(String.valueOf(df.format(maxSpeed)));
+            vavgView.setText(String.valueOf(df.format(avgSpeed)));
+            exitView.setText(String.valueOf(df.format(exitAlti)));
+            dplyView.setText(String.valueOf(df.format(dplyAlti)));
+            timeView.setText(String.valueOf(df.format(falltime)));
+
+            logAlti.clear();
+            logTime.clear();
+        }
         @Override
         public void onAccuracyChanged(Sensor sensor, int i) {
 
