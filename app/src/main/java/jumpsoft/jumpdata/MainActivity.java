@@ -1,6 +1,8 @@
 package jumpsoft.jumpdata;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 
@@ -84,6 +86,9 @@ public class MainActivity extends AppCompatActivity
         exitView = (TextView) findViewById(R.id.exitView);
         dplyView = (TextView) findViewById(R.id.dplyView);
         timeView = (TextView) findViewById(R.id.timeView);
+
+        SQLiteOpenHelper sqLiteOpenHelper = new LogBookDatabaseHelper(getApplicationContext(), "Logbook.db", null, 1);
+        SQLiteDatabase logbookDB = sqLiteOpenHelper.getWritableDatabase(); // todo close database
     }
 
     @Override
@@ -175,13 +180,11 @@ public class MainActivity extends AppCompatActivity
         public void onSensorChanged(SensorEvent sensorEvent) {
 
             if (!groundPressureSet) {
-                groundPressure = Math.round(sensorEvent.values[0]);
+                groundPressure = sensorEvent.values[0];
                 groundPressureSet = true;
             }
 
             rawPressureValue = sensorEvent.values[0];
-            /*if (groundPressure < Math.round(rawPressureValue))
-                groundPressureSet = false;*/
             medianList.add(rawPressureValue);
 
             medianCounter++;
@@ -189,7 +192,9 @@ public class MainActivity extends AppCompatActivity
                 Collections.sort(medianList);
                 pressureValue = medianList.get(1);
                 altitude = manager.getAltitude(groundPressure, pressureValue);
-
+                if (altitude < 0){
+                    groundPressureSet = false;
+                }
                 //Speed calculation
                 time = sensorEvent.timestamp;
                 speedTimeList.add(time);
@@ -219,7 +224,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 medianCounter = 0;
                 medianList.clear();
-            }//median calculator
+            }
 
             altiView.setText(String.valueOf( df.format(altitude) + " m"));
             spdView.setText(String.valueOf( df.format(speed) + " m/s"));
@@ -249,6 +254,8 @@ public class MainActivity extends AppCompatActivity
 
             logAlti.clear();
             logTime.clear();
+
+            // todo database update
         }
         @Override
         public void onAccuracyChanged(Sensor sensor, int i) {
