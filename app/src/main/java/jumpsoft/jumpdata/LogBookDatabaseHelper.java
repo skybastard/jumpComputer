@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+
 public class LogBookDatabaseHelper extends SQLiteOpenHelper {
 
 
@@ -29,6 +30,7 @@ public class LogBookDatabaseHelper extends SQLiteOpenHelper {
                 + "TOTALTIME TEXT, "
                 + "COMMENTS TEXT);");
         Log.d("baas", "Table is created");
+
 
     }
 
