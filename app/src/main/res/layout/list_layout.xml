@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:layout_editor_absoluteY="81dp"
+    tools:layout_editor_absoluteX="0dp">
+
+    <TextView
+        android:id="@+id/textViewDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Date:"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toRightOf="@+id/listJumpNo"
+        android:layout_marginLeft="16dp"
+        tools:layout_constraintTop_creator="1"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textViewExit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Exit:"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/textViewDate"
+        app:layout_constraintLeft_toRightOf="@+id/listJumpNo"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp" />
+
+    <TextView
+        android:id="@+id/textViewVavg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Vavg:"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toRightOf="@+id/listExit"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/textViewExit"
+        android:layout_marginStart="8dp" />
+
+    <TextView
+        android:id="@+id/listDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        app:layout_constraintLeft_toRightOf="@+id/textViewDate"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/textViewDate"
+        android:layout_marginStart="8dp" />
+
+    <TextView
+        android:id="@+id/listExit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="3"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        app:layout_constraintBaseline_toBaselineOf="@+id/textViewExit"
+        tools:layout_constraintLeft_creator="1"
+        android:layout_marginStart="6dp"
+        app:layout_constraintLeft_toRightOf="@+id/textViewExit"
+        android:layout_marginLeft="6dp" />
+
+    <TextView
+        android:id="@+id/listVavg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="7dp"
+        android:text="4"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        app:layout_constraintLeft_toRightOf="@+id/textViewVavg"
+        android:layout_marginLeft="7dp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/textViewVavg" />
+
+    <TextView
+        android:id="@+id/listJumpNo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="19855"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="30sp"
+        android:layout_marginStart="32dp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="8dp"
+        tools:layout_constraintLeft_creator="1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginLeft="32dp" />
+
+    <TextView
+        android:id="@+id/textView15"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="#"
+        android:textColor="@color/colorPrimaryDark"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/listJumpNo"
+        android:layout_marginRight="8dp"
+        tools:layout_constraintBottom_creator="1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="17dp" />
+
+
+</android.support.constraint.ConstraintLayout>

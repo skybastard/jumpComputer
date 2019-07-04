@@ -1,7 +1,10 @@
 package jumpsoft.jumpdata;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.sqlite.SQLiteAccessPermException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.hardware.Sensor;
 import android.hardware.SensorListener;
@@ -10,6 +13,7 @@ import android.hardware.SensorManager;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -26,14 +30,18 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.NoSuchElementException;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, SensorEventListener {
     private SensorManager sensorManager;
     //private Sensor pressureSensor;
     //private PowerManager.WakeLock wakeLock;
+    private SQLiteDatabase logbookDB;
 
 
     TextView altiView;
@@ -87,8 +95,12 @@ public class MainActivity extends AppCompatActivity
         dplyView = (TextView) findViewById(R.id.dplyView);
         timeView = (TextView) findViewById(R.id.timeView);
 
-        SQLiteOpenHelper sqLiteOpenHelper = new LogBookDatabaseHelper(getApplicationContext(), "Logbook.db", null, 1);
-        SQLiteDatabase logbookDB = sqLiteOpenHelper.getWritableDatabase(); // todo close database
+        try {
+            SQLiteOpenHelper sqLiteOpenHelper = new LogBookDatabaseHelper(getApplicationContext());
+            logbookDB = sqLiteOpenHelper.getWritableDatabase();
+        }catch (SQLiteException e){
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -204,7 +216,7 @@ public class MainActivity extends AppCompatActivity
                     maxSpeed = speed;
                 }
 
-                if (speed > 10 && altitude > 50) {
+                if (speed > 10 && altitude > 60) { //TODO put real altitude
                     logData(time, altitude); // log data for further calculations
                     freefalling = true;
                 } else {
@@ -254,7 +266,7 @@ public class MainActivity extends AppCompatActivity
 
         logAlti.clear();
         logTime.clear();
-        // todo database update here
+        // TODO database update here
     }
 
 
@@ -266,9 +278,42 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
+        logbookDB.close();
         super.onDestroy();
 
     }
 
+    private class UpdateLogbook extends AsyncTask<Boolean, Void,Void>{
+
+        @Override
+        protected Void doInBackground(Boolean... booleans) {
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM d, yyyy");
+            String date = sdf.format(calendar.getTime());
+            try{
+                //TODO sharedprefs jumpnumber update
+                ContentValues insertValues = new ContentValues();
+                insertValues.put("JUMPNO", "226");
+                insertValues.put("JUMPDATE", date);
+                insertValues.put("EXIT", "4000");
+                insertValues.put("MAXSPEED", "271");
+                insertValues.put("AVGSPEED", "260");
+                insertValues.put("DEPLOYMENT", "990");
+                insertValues.put("DZ","RAPLA");
+                insertValues.put("PLANE", "Porter");
+                insertValues.put("TIME", "60sek");
+                insertValues.put("TOTALTIME","time");
+                insertValues.put("GEAR", "Mirage");
+                logbookDB.insert("JUMPS",null, insertValues);
+
+            }catch (NoSuchElementException | SQLiteAccessPermException e){
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
 
 }
+
+

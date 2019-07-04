@@ -9,9 +9,11 @@ import android.util.Log;
 
 public class LogBookDatabaseHelper extends SQLiteOpenHelper {
 
+    private static final String DB_NAME = "jumpsoft.jumpdata.Logbook.db";
+    public static final int DB_VERSION = 1;
 
-    public LogBookDatabaseHelper(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version) {
-        super(context, name, factory, version);
+    public LogBookDatabaseHelper(Context context) {
+        super(context, DB_NAME, null, DB_VERSION);
     }
 
     @Override
