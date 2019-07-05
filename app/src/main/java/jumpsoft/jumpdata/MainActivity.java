@@ -29,6 +29,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,10 +57,10 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -68,13 +69,13 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         //PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         //wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "jumpData:wakelock");
@@ -87,13 +88,13 @@ public class MainActivity extends AppCompatActivity
         sensorManager.registerListener(this, pressureSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
 
-        altiView = (TextView) findViewById(R.id.altiView);
-        spdView = (TextView) findViewById(R.id.spdView);
-        vmaxView = (TextView) findViewById(R.id.vmaxView);
-        vavgView = (TextView) findViewById(R.id.vavgView);
-        exitView = (TextView) findViewById(R.id.exitView);
-        dplyView = (TextView) findViewById(R.id.dplyView);
-        timeView = (TextView) findViewById(R.id.timeView);
+        altiView = findViewById(R.id.altiView);
+        spdView = findViewById(R.id.spdView);
+        vmaxView = findViewById(R.id.vmaxView);
+        vavgView = findViewById(R.id.vavgView);
+        exitView = findViewById(R.id.exitView);
+        dplyView = findViewById(R.id.dplyView);
+        timeView = findViewById(R.id.timeView);
 
         try {
             SQLiteOpenHelper sqLiteOpenHelper = new LogBookDatabaseHelper(getApplicationContext());
@@ -105,8 +106,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout); // used to be drawer_layout
         if (drawer.isDrawerOpen(GravityCompat.START)) {
+            Logbook logbook = new Logbook();
+            logbook.listPopulationFromDB();
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
@@ -156,10 +159,11 @@ public class MainActivity extends AppCompatActivity
 
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 
     float pressureValue;
     float rawPressureValue;
@@ -232,11 +236,11 @@ public class MainActivity extends AppCompatActivity
             medianList.clear();
         }
 
-        altiView.setText(String.valueOf(df.format(altitude) + " m"));
-        spdView.setText(String.valueOf(df.format(speed) + " m/s"));
+        altiView.setText(df.format(altitude) + " m");
+        spdView.setText(df.format(speed) + " m/s");
 
 
-        Log.d("pressure", String.valueOf(sensorEvent.values[0]) + " " + deltaTime + " " + deltaHeight);
+        Log.d("pressure", sensorEvent.values[0] + " " + deltaTime + " " + deltaHeight);
     } // onsensorchanged end
 
     @Override
@@ -264,6 +268,8 @@ public class MainActivity extends AppCompatActivity
         dplyView.setText(String.valueOf(df.format(dplyAlti)));
         timeView.setText(String.valueOf(df.format(falltime)));
 
+        new UpdateLogbook().execute(true);
+
         logAlti.clear();
         logTime.clear();
         // TODO database update here
@@ -288,8 +294,8 @@ public class MainActivity extends AppCompatActivity
         @Override
         protected Void doInBackground(Boolean... booleans) {
             Calendar calendar = Calendar.getInstance();
-            SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM d, yyyy");
-            String date = sdf.format(calendar.getTime());
+            DateFormat df = DateFormat.getDateInstance(DateFormat.LONG);
+            String date = df.format(calendar.getTime());
             try{
                 //TODO sharedprefs jumpnumber update
                 ContentValues insertValues = new ContentValues();

@@ -18,19 +18,16 @@ import android.widget.Toast;
 
 public class Logbook extends ListFragment {
 
-    private SQLiteDatabase logbookDB;
-    private Cursor cursor;
     CursorAdapter listAdapter;
     ListView listJumps;
 
-    public Logbook() {
+    //public Logbook() {
         // required empty constructor
-    }
+    //}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View myInflatedViewLogbook = inflater.inflate(R.layout.fragment_logbook, container, false);
-        return myInflatedViewLogbook;
+        return inflater.inflate(R.layout.fragment_logbook, container, false);
     }
 
     @Override
@@ -39,19 +36,19 @@ public class Logbook extends ListFragment {
         super.onViewCreated(view, savedInstanceState);
     }
 
-    public void listPopulationFromDB() {
+    public ListView listPopulationFromDB() {
         try {
             String[] dbColumns = new String[]{"JUMPNO", "JUMPDATE", "EXIT", "DEPLOYMENT", "MAXSPEED", "AVGSPEED", "TIME"}; // list for cursor method
             int[] bindTo = new int[]{R.id.listJumpNo, R.id.listDate, R.id.listExit, R.id.listVavg,}; // list for cursor method
             listJumps = getListView(); // general android listview
 
             SQLiteOpenHelper logbookDatabaseHelper = new LogBookDatabaseHelper(getActivity().getApplicationContext());
-            logbookDB = logbookDatabaseHelper.getWritableDatabase();
-            cursor = logbookDB.query("JUMPS", new String[]{"_id", "JUMPNO", "JUMPDATE", "EXIT",
+            SQLiteDatabase logbookDB = logbookDatabaseHelper.getWritableDatabase();
+            Cursor cursor = logbookDB.query("JUMPS", new String[]{"_id", "JUMPNO", "JUMPDATE", "EXIT",
                     "DEPLOYMENT", "DZ", "MAXSPEED", "AVGSPEED", "TIME"}, null, null, null, null, null);
 
             listAdapter = new SimpleCursorAdapter(getActivity().getApplicationContext(),
-                    R.layout.list_layout, cursor, dbColumns, bindTo);
+                    R.layout.list_item, cursor, dbColumns, bindTo);
             listJumps.setAdapter(listAdapter);
             //TODO put long and shortcklick listeners here to open item from list and delete
 
@@ -62,6 +59,7 @@ public class Logbook extends ListFragment {
             toast.show();
             e.printStackTrace();
         }
+        return listJumps;
 
     }
 }
